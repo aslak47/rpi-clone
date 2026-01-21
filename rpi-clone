@@ -10,7 +10,7 @@
 # This updated code is located in a fork of Bill Wilson's git repository
 # at https://github.com/geerlingguy/rpi-clone
 
-version=2.0.26
+version=2.0.27
 
 # prefix debug statements with line numbers when -x is used
 declare -r PS4='|${LINENO}> \011${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
@@ -536,11 +536,15 @@ change_label() {
 
     dst_part_label "$pnum" "$fs_type" label
     if [ "$label" != "" ] && [[ "$fs_type" == *"ext"* ]]; then
-        echo "  e2label $dev $label"
-        e2label $dev $label
+        if [ $(e2label $dev) != "$label" ]; then
+            echo "  e2label $dev $label"
+            e2label $dev $label
+        fi
     elif [ "$label" != "" ] && [[ "$fs_type" == *"fat"* ]]; then
-        echo "  fatlabel $dev $label"
-        fatlabel $dev $label
+        if [ $(fatlabel $dev) != "$label" ]; then
+            echo "  fatlabel $dev $label"
+            fatlabel $dev $label
+        fi
     fi
 }
 
@@ -556,8 +560,6 @@ get_src_disk() {
     printf -v "${2}" "%s" "$disk"
     printf -v "${3}" "%s" "$num"
 }
-
-echo $PGM Version: $version
 
 # ==== source (booted) disk info and default mount list
 #
@@ -878,6 +880,8 @@ if [[ -z "$cmdlinedir" ]]; then
     echo "Unable to locate boot device"
     exit 1
 fi
+
+qecho "$PGM Version: $version"
 
 if ((convert_to_partuuid)); then
     unattended=0
