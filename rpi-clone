@@ -536,13 +536,13 @@ change_label() {
 
     dst_part_label "$pnum" "$fs_type" label
     if [ "$label" != "" ] && [[ "$fs_type" == *"ext"* ]]; then
-        if [ $(e2label $dev) != "$label" ]; then
-            echo "  e2label $dev $label"
+        if [ $(e2label "$dev" | grep "$label") != "$label" ]; then
+            qecho "  e2label $dev $label"
             e2label $dev $label
         fi
     elif [ "$label" != "" ] && [[ "$fs_type" == *"fat"* ]]; then
-        if [ $(fatlabel $dev) != "$label" ]; then
-            echo "  fatlabel $dev $label"
+        if [ $(fatlabel "$dev" | grep "$label") != "$label" ]; then
+            qecho "  fatlabel $dev $label"
             fatlabel $dev $label
         fi
     fi
